@@ -42,3 +42,21 @@ sublime_all: sublime_armgcc sublime_armcc
 
 clean:
 	$(foreach dir,$(wildcard build/*), $(RM) $(dir))
+
+help:
+	@echo "The following are some of the valid targets for this Makefile:"
+	@echo "... help"
+	@echo "... armcc"
+	@echo "... armgcc"
+	@echo "... eclipse_armcc"
+	@echo "... eclipse_armgcc"
+	@echo "... sublime_armcc"
+	@echo "... sublime_armgcc"
+	@echo "... all"
+	@echo "... eclipse_all"
+	@echo "... sublime_all"
+	@echo "... clean"
+	@echo ""
+	@echo "To change build type:      BUILD_TYPE=[release|debug]"
+	@echo "To change board:           BOARD=[pca10028|pca10040|pca10056]"
+	@echo "To change cmake generator: GENERATOR=[\"MSYS Makefiles\"|\"Unix Makefiles\"]"
