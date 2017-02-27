@@ -141,7 +141,7 @@ typedef enum {
 /** @} */ /* End of group Configuration_of_CMSIS */
 
 #include "core_cm4.h"                               /*!< Cortex-M4 processor and core peripherals                              */
-#include "system_nrf5x.h"                           /*!< nrfx System                                                       */
+#include "nrf5x_system.h"                           /*!< nrfx System                                                       */
 
 
 /* ================================================================================ */

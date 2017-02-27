@@ -27,17 +27,17 @@ elseif(${DEVICE_SERIES} STREQUAL "NRF52")
 endif()
 
 string(TOLOWER ${DEVICE_TYPE} DEVICE_TYPE_L)
-set(DEVICE_SYSTEM_FILE ${CMAKE_CURRENT_LIST_DIR}/src/system_${DEVICE_TYPE_L}.c)
+set(DEVICE_SYSTEM_FILE      ${CMAKE_CURRENT_LIST_DIR}/src/${DEVICE_TYPE_L}_system.c)
+set(DEVICE_STARTUP_FILES    ${CMAKE_CURRENT_LIST_DIR}/src/nrf5x_startup.c
+                            ${CMAKE_CURRENT_LIST_DIR}/src/${DEVICE_TYPE_L}_startup.c)
 
 
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-    set(DEVICE_STARTUP_FILE         ${CMAKE_CURRENT_LIST_DIR}/src/gcc_startup_${DEVICE_TYPE_L}.S)
     set(DEVICE_COMMON_LINKER_PATH   ${CMAKE_CURRENT_LIST_DIR}/linker)
-    set(TEMPLATE_LINKER_SCRIPT      ${CMAKE_CURRENT_LIST_DIR}/linker/template.ld)
+    set(TEMPLATE_LINKER_SCRIPT      ${CMAKE_CURRENT_LIST_DIR}/templates/template_linker.ld)
 
 elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "ARMCC")
-    set(DEVICE_STARTUP_FILE         ${CMAKE_CURRENT_LIST_DIR}/src/arm_startup_${DEVICE_TYPE_L}.s)
-    set(TEMPLATE_LINKER_SCRIPT      ${CMAKE_CURRENT_LIST_DIR}/linker/template.sct)
+    set(TEMPLATE_LINKER_SCRIPT      ${CMAKE_CURRENT_LIST_DIR}/templates/template_scatter_file.sct)
 endif()
 
 set(${PROJECT_NAME}_DEVICE_FLASH_ORGIN 0x00000000 CACHE STRING "${PROJECT_NAME} flash orgin.")
@@ -86,7 +86,7 @@ else()
     message(FATAL_ERROR "Unsupported device type: " ${DEVICE_TYPE})
 endif()
 
-set(DEVICE_INCLUDES "${CMAKE_CURRENT_LIST_DIR}/inc" "${CMAKE_CURRENT_LIST_DIR}/cmsis/inc")
+set(DEVICE_INCLUDES "${CMAKE_CURRENT_LIST_DIR}/inc" "${CMAKE_CURRENT_LIST_DIR}/cmsis/inc" "${CMAKE_CURRENT_LIST_DIR}/templates")
 
 function(nordic_set_device_properties TARGET)
     target_compile_options(${TARGET}     PRIVATE ${MCPU_FLAGS} ${VFP_FLAGS})
@@ -128,7 +128,7 @@ function(nordic_add_executable TARGET)
     add_executable(${TARGET} ${ARGN})
     nordic_set_device_properties(${TARGET})
     nordic_add_linker(${TARGET})
-    set_property(TARGET ${TARGET} APPEND PROPERTY SOURCES ${DEVICE_STARTUP_FILE} ${DEVICE_SYSTEM_FILE})
+    set_property(TARGET ${TARGET} APPEND PROPERTY SOURCES ${DEVICE_STARTUP_FILES} ${DEVICE_SYSTEM_FILE})
 endfunction()
 
 function(nordic_add_hex_bin_targets TARGET)

@@ -28,8 +28,8 @@
  *
  */
  
-#ifndef SYSTEM_NRF5X_H
-#define SYSTEM_NRF5X_H
+#ifndef NRF5X_SYSTEM_H__
+#define NRF5X_SYSTEM_H__
 
 #ifdef __cplusplus
 extern "C" {
@@ -49,7 +49,7 @@ extern uint32_t SystemCoreClock;    /*!< System Clock Frequency (Core Clock)  */
  * @brief  Setup the microcontroller system.
  *         Initialize the System and update the SystemCoreClock variable.
  */
-extern void SystemInit (void);
+void SystemInit(void);
 
 /**
  * Update SystemCoreClock variable
@@ -60,10 +60,10 @@ extern void SystemInit (void);
  * @brief  Updates the SystemCoreClock with current core Clock 
  *         retrieved from cpu registers.
  */
-extern void SystemCoreClockUpdate (void);
+void SystemCoreClockUpdate (void);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* SYSTEM_NRF5X_H */
+#endif // NRF5X_SYSTEM_H__
