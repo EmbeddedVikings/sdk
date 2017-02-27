@@ -1,0 +1,11 @@
+LR_IROM1 ${FLASH_ORGIN} ${FLASH_SIZE} {  ; Load region size_region
+  ER_IROM1 ${FLASH_ORGIN} ${FLASH_SIZE} {
+   *.o (RESET, +First)
+   *(InRoot$$Sections)
+   .ANY (+RO)
+  }
+
+  RW_IRAM1 ${RAM_ORGIN} ${RAM_SIZE} {
+   .ANY (+RW +ZI)
+  }
+}
