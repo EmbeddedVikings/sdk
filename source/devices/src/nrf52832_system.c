@@ -32,6 +32,7 @@
 #include <stdbool.h>
 #include <nrf.h>
 #include <nrf5x_system.h>
+#include <system_config.h>
 
 /*lint ++flb "Enter library region" */
 
@@ -134,16 +135,16 @@ void SystemInit(void)
     /* Enable the FPU if the compiler used floating point unit instructions. __FPU_USED is a MACRO defined by the
      * compiler. Since the FPU consumes energy, remember to disable FPU use in the compiler if floating point unit
      * operations are not used in your code. */
-    #if (__FPU_USED == 1)
+#   if (__FPU_USED == 1)
         SCB->CPACR |= (3UL << 20) | (3UL << 22);
         __DSB();
         __ISB();
-    #endif
+#   endif // __FPU_USED
 
-    /* Configure NFCT pins as GPIOs if NFCT is not to be used in your code. If CONFIG_NFCT_PINS_AS_GPIOS is not defined,
+    /* Configure NFCT pins as GPIOs if NFCT is not to be used in your code. If SYSTEM_CONFIG_NFCT_PINS_AS_GPIOS is not defined,
        two GPIOs (see Product Specification to see which ones) will be reserved for NFC and will not be available as
        normal GPIOs. */
-    #if defined (CONFIG_NFCT_PINS_AS_GPIOS)
+#   ifdef SYSTEM_CONFIG_NFCT_PINS_AS_GPIOS
         if ((NRF_UICR->NFCPINS & UICR_NFCPINS_PROTECT_Msk) == (UICR_NFCPINS_PROTECT_NFC << UICR_NFCPINS_PROTECT_Pos)){
             NRF_NVMC->CONFIG = NVMC_CONFIG_WEN_Wen << NVMC_CONFIG_WEN_Pos;
             while (NRF_NVMC->READY == NVMC_READY_READY_Busy){}
@@ -153,12 +154,12 @@ void SystemInit(void)
             while (NRF_NVMC->READY == NVMC_READY_READY_Busy){}
             NVIC_SystemReset();
         }
-    #endif
+#   endif // SYSTEM_CONFIG_NFCT_PINS_AS_GPIOS
 
-    /* Configure GPIO pads as pPin Reset pin if Pin Reset capabilities desired. If CONFIG_GPIO_AS_PINRESET is not
+    /* Configure GPIO pads as pPin Reset pin if Pin Reset capabilities desired. If SYSTEM_CONFIG_PINRESET_AS_GPIO is
       defined, pin reset will not be available. One GPIO (see Product Specification to see which one) will then be
       reserved for PinReset and not available as normal GPIO. */
-    #if defined (CONFIG_GPIO_AS_PINRESET)
+#   ifndef SYSTEM_CONFIG_PINRESET_AS_GPIO
         if (((NRF_UICR->PSELRESET[0] & UICR_PSELRESET_CONNECT_Msk) != (UICR_PSELRESET_CONNECT_Connected << UICR_PSELRESET_CONNECT_Pos)) ||
             ((NRF_UICR->PSELRESET[1] & UICR_PSELRESET_CONNECT_Msk) != (UICR_PSELRESET_CONNECT_Connected << UICR_PSELRESET_CONNECT_Pos))){
             NRF_NVMC->CONFIG = NVMC_CONFIG_WEN_Wen << NVMC_CONFIG_WEN_Pos;
@@ -171,19 +172,19 @@ void SystemInit(void)
             while (NRF_NVMC->READY == NVMC_READY_READY_Busy){}
             NVIC_SystemReset();
         }
-    #endif
+#   endif // !SYSTEM_CONFIG_PINRESET_AS_GPIO
 
     /* Enable SWO trace functionality. If ENABLE_SWO is not defined, SWO pin will be used as GPIO (see Product
        Specification to see which one). */
-    #if defined (ENABLE_SWO)
+#   ifdef SYSTEM_CONFIG_SWO_ENABLED
         CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
         NRF_CLOCK->TRACECONFIG |= CLOCK_TRACECONFIG_TRACEMUX_Serial << CLOCK_TRACECONFIG_TRACEMUX_Pos;
         NRF_P0->PIN_CNF[18] = (GPIO_PIN_CNF_DRIVE_H0H1 << GPIO_PIN_CNF_DRIVE_Pos) | (GPIO_PIN_CNF_INPUT_Connect << GPIO_PIN_CNF_INPUT_Pos) | (GPIO_PIN_CNF_DIR_Output << GPIO_PIN_CNF_DIR_Pos);
-    #endif
+#   endif // SYSTEM_CONFIG_SWO_ENABLED
 
-    /* Enable Trace functionality. If ENABLE_TRACE is not defined, TRACE pins will be used as GPIOs (see Product
+    /* Enable Trace functionality. If SYSTEM_CONFIG_TRACE_ENABLED is not defined, TRACE pins will be used as GPIOs (see Product
        Specification to see which ones). */
-    #if defined (ENABLE_TRACE)
+#   ifdef SYSTEM_CONFIG_TRACE_ENABLED
         CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
         NRF_CLOCK->TRACECONFIG |= CLOCK_TRACECONFIG_TRACEMUX_Parallel << CLOCK_TRACECONFIG_TRACEMUX_Pos;
         NRF_P0->PIN_CNF[14] = (GPIO_PIN_CNF_DRIVE_H0H1 << GPIO_PIN_CNF_DRIVE_Pos) | (GPIO_PIN_CNF_INPUT_Connect << GPIO_PIN_CNF_INPUT_Pos) | (GPIO_PIN_CNF_DIR_Output << GPIO_PIN_CNF_DIR_Pos);
@@ -191,7 +192,7 @@ void SystemInit(void)
         NRF_P0->PIN_CNF[16] = (GPIO_PIN_CNF_DRIVE_H0H1 << GPIO_PIN_CNF_DRIVE_Pos) | (GPIO_PIN_CNF_INPUT_Connect << GPIO_PIN_CNF_INPUT_Pos) | (GPIO_PIN_CNF_DIR_Output << GPIO_PIN_CNF_DIR_Pos);
         NRF_P0->PIN_CNF[18] = (GPIO_PIN_CNF_DRIVE_H0H1 << GPIO_PIN_CNF_DRIVE_Pos) | (GPIO_PIN_CNF_INPUT_Connect << GPIO_PIN_CNF_INPUT_Pos) | (GPIO_PIN_CNF_DIR_Output << GPIO_PIN_CNF_DIR_Pos);
         NRF_P0->PIN_CNF[20] = (GPIO_PIN_CNF_DRIVE_H0H1 << GPIO_PIN_CNF_DRIVE_Pos) | (GPIO_PIN_CNF_INPUT_Connect << GPIO_PIN_CNF_INPUT_Pos) | (GPIO_PIN_CNF_DIR_Output << GPIO_PIN_CNF_DIR_Pos);
-    #endif
+#   endif // SYSTEM_CONFIG_TRACE_ENABLED
 
     SystemCoreClockUpdate();
 }

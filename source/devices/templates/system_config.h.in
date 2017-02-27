@@ -1,0 +1,18 @@
+
+#ifndef SYSTEM_CONFIG_H__
+#define SYSTEM_CONFIG_H__
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#cmakedefine SYSTEM_CONFIG_NFCT_PINS_AS_GPIOS
+#cmakedefine SYSTEM_CONFIG_PINRESET_AS_GPIO
+#cmakedefine SYSTEM_CONFIG_SWO_ENABLED
+#cmakedefine SYSTEM_CONFIG_TRACE_ENABLED
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif // SYSTEM_CONFIG_H__

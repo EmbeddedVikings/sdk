@@ -2,10 +2,14 @@ if(NOT DEFINED ${PROJECT_NAME}_DEVICE)
     set(${PROJECT_NAME}_DEVICE ${CMAKE_DEVICE} CACHE STRING "Device [nrf51422xxAA, nrf51422xxAB, nrf51422xxAC, nrf52832xxAA, nrf52832xxAB, nrf52840xxAA]")
 endif()
 
+
 string(TOUPPER ${${PROJECT_NAME}_DEVICE} DEVICE)
 string(REGEX MATCH "^(NRF[0-9][0-9])"   DEVICE_SERIES   ${DEVICE})
 string(REGEX MATCH "^(NRF([0-9]+))"     DEVICE_TYPE     ${DEVICE})
 string(REGEX MATCH "([A-Z][A-Z])$"      DEVICE_DENSITY  ${DEVICE})
+
+string(TOLOWER ${DEVICE_TYPE} DEVICE_TYPE_L)
+
 
 if(${DEVICE_SERIES} STREQUAL "NRF51")
     if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
@@ -26,19 +30,49 @@ elseif(${DEVICE_SERIES} STREQUAL "NRF52")
     endif()
 endif()
 
-string(TOLOWER ${DEVICE_TYPE} DEVICE_TYPE_L)
-set(DEVICE_SYSTEM_FILE      ${CMAKE_CURRENT_LIST_DIR}/src/${DEVICE_TYPE_L}_system.c)
-set(DEVICE_STARTUP_FILES    ${CMAKE_CURRENT_LIST_DIR}/src/nrf5x_startup.c
-                            ${CMAKE_CURRENT_LIST_DIR}/src/${DEVICE_TYPE_L}_startup.c)
 
+set(DEVICE_SYSTEM_FILE      ${CMAKE_CURRENT_LIST_DIR}/src/${DEVICE_TYPE_L}_system.c)
+if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+    set(DEVICE_STARTUP_FILE    ${CMAKE_CURRENT_LIST_DIR}/src/gcc_${DEVICE_TYPE_L}_startup.S)
+
+elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "ARMCC")
+    set(DEVICE_STARTUP_FILE    ${CMAKE_CURRENT_LIST_DIR}/src/arm_${DEVICE_TYPE_L}_startup.s)
+endif()
 
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
     set(DEVICE_COMMON_LINKER_PATH   ${CMAKE_CURRENT_LIST_DIR}/linker)
-    set(TEMPLATE_LINKER_SCRIPT      ${CMAKE_CURRENT_LIST_DIR}/templates/template_linker.ld)
+    set(TEMPLATE_LINKER_SCRIPT      ${CMAKE_CURRENT_LIST_DIR}/templates/linker.ld.in)
 
 elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "ARMCC")
-    set(TEMPLATE_LINKER_SCRIPT      ${CMAKE_CURRENT_LIST_DIR}/templates/template_scatter_file.sct)
+    set(TEMPLATE_LINKER_SCRIPT      ${CMAKE_CURRENT_LIST_DIR}/templates/scatter_file.sct.in)
 endif()
+
+
+if(NOT DEFINED ${PROJECT_NAME}_STARTUP_CONFIG_STACK_SIZE)
+    set(${PROJECT_NAME}_STARTUP_CONFIG_STACK_SIZE   0x1000 CACHE STRING "Stack size")
+endif()
+
+if(NOT DEFINED ${PROJECT_NAME}_STARTUP_CONFIG_HEAP_SIZE)
+    set(${PROJECT_NAME}_STARTUP_CONFIG_HEAP_SIZE    0x1000 CACHE STRING "Heap size")
+endif()
+
+set(TEMPLATE_STARTUP_CONFIG     ${CMAKE_CURRENT_LIST_DIR}/templates/startup_config.h.in)
+
+
+if(${DEVICE_SERIES} STREQUAL "NRF52")
+    set(${PROJECT_NAME}_SYSTEM_CONFIG_NFCT_PINS_AS_GPIOS    OFF CACHE BOOL  "Configure NFCT Pins as GPIOs")
+    set(${PROJECT_NAME}_SYSTEM_CONFIG_PINRESET_AS_GPIO      OFF CACHE BOOL  "Configure Reset Pin as GPIO")
+    set(${PROJECT_NAME}_SYSTEM_CONFIG_SWO_ENABLED           OFF CACHE BOOL  "Enable SWO")
+    set(${PROJECT_NAME}_SYSTEM_CONFIG_TRACE_ENABLED         OFF CACHE BOOL  "Enable Trace")
+else()
+    set(${PROJECT_NAME}_SYSTEM_CONFIG_NFCT_PINS_AS_GPIOS    OFF)
+    set(${PROJECT_NAME}_SYSTEM_CONFIG_PINRESET_AS_GPIO      OFF)
+    set(${PROJECT_NAME}_SYSTEM_CONFIG_SWO_ENABLED           OFF)
+    set(${PROJECT_NAME}_SYSTEM_CONFIG_TRACE_ENABLED         OFF)
+endif()
+
+set(TEMPLATE_SYSTEM_CONFIG      ${CMAKE_CURRENT_LIST_DIR}/templates/system_config.h.in)
+
 
 set(${PROJECT_NAME}_DEVICE_FLASH_ORGIN 0x00000000 CACHE STRING "${PROJECT_NAME} flash orgin.")
 set(${PROJECT_NAME}_DEVICE_RAM_ORGIN   0x20000000 CACHE STRING "${PROJECT_NAME} RAM orgin.")
@@ -86,19 +120,24 @@ else()
     message(FATAL_ERROR "Unsupported device type: " ${DEVICE_TYPE})
 endif()
 
-set(DEVICE_INCLUDES "${CMAKE_CURRENT_LIST_DIR}/inc" "${CMAKE_CURRENT_LIST_DIR}/cmsis/inc" "${CMAKE_CURRENT_LIST_DIR}/templates")
+
+set(DEVICE_INCLUDES "${CMAKE_CURRENT_LIST_DIR}/inc" "${CMAKE_CURRENT_LIST_DIR}/cmsis/inc")
+
 
 function(nordic_set_device_properties TARGET)
     target_compile_options(${TARGET}     PRIVATE ${MCPU_FLAGS} ${VFP_FLAGS})
     target_compile_definitions(${TARGET} PRIVATE "-D${DEVICE_SERIES}_SERIES" "-D${DEVICE_TYPE}" "-D${DEVICE}")
     target_include_directories(${TARGET} PRIVATE ${DEVICE_INCLUDES})
-    string (REPLACE ";" " " TARGET_LINK_FLAGS " ${MCPU_FLAGS} ${VFP_FLAGS}")
+    target_include_directories(${TARGET} PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/config)
+    string(REPLACE ";" " " TARGET_LINK_FLAGS " ${MCPU_FLAGS} ${VFP_FLAGS}")
     set_property(TARGET ${TARGET} APPEND_STRING PROPERTY LINK_FLAGS ${TARGET_LINK_FLAGS})
 endfunction()
+
 
 function(nordic_add_linker TARGET)
     if(DEFINED ${PROJECT_NAME}_DEVICE_LINKER_SCRIPT)
         set(LINKER_SCRIPT ${${PROJECT_NAME}_DEVICE_LINKER_SCRIPT})
+
     else()
         message(STATUS "Generate linker script for ${TARGET}.")
         set(FLASH_ORGIN ${${PROJECT_NAME}_DEVICE_FLASH_ORGIN})
@@ -122,14 +161,30 @@ function(nordic_add_linker TARGET)
     elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "ARMCC")
         set_property(TARGET ${TARGET} APPEND_STRING PROPERTY LINK_FLAGS " --scatter ${LINKER_SCRIPT}")
     endif()
+
+
+    set(STARTUP_CONFIG_STACK_SIZE  ${${PROJECT_NAME}_STARTUP_CONFIG_STACK_SIZE})
+    set(STARTUP_CONFIG_HEAP_SIZE   ${${PROJECT_NAME}_STARTUP_CONFIG_HEAP_SIZE})
+
+    configure_file(${TEMPLATE_STARTUP_CONFIG} ${CMAKE_CURRENT_BINARY_DIR}/config/startup_config.h)
+
+
+    set(SYSTEM_CONFIG_NFCT_PINS_AS_GPIOS    ${${PROJECT_NAME}_SYSTEM_CONFIG_NFCT_PINS_AS_GPIOS})
+    set(SYSTEM_CONFIG_PINRESET_AS_GPIO      ${${PROJECT_NAME}_SYSTEM_CONFIG_PINRESET_AS_GPIO})
+    set(SYSTEM_CONFIG_SWO_ENABLED           ${${PROJECT_NAME}_SYSTEM_CONFIG_SWO_ENABLED})
+    set(SYSTEM_CONFIG_TRACE_ENABLED         ${${PROJECT_NAME}_SYSTEM_CONFIG_TRACE_ENABLED})
+
+    configure_file(${TEMPLATE_SYSTEM_CONFIG} ${CMAKE_CURRENT_BINARY_DIR}/config/system_config.h)
 endfunction()
+
 
 function(nordic_add_executable TARGET)
     add_executable(${TARGET} ${ARGN})
     nordic_set_device_properties(${TARGET})
     nordic_add_linker(${TARGET})
-    set_property(TARGET ${TARGET} APPEND PROPERTY SOURCES ${DEVICE_STARTUP_FILES} ${DEVICE_SYSTEM_FILE})
+    set_property(TARGET ${TARGET} APPEND PROPERTY SOURCES ${DEVICE_STARTUP_FILE} ${DEVICE_SYSTEM_FILE})
 endfunction()
+
 
 function(nordic_add_hex_bin_targets TARGET)
     if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
@@ -141,7 +196,7 @@ function(nordic_add_hex_bin_targets TARGET)
     elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "ARMCC")
         add_custom_command(TARGET ${TARGET} POST_BUILD COMMAND ${CMAKE_FROMELF} --bin ${TARGET}${CMAKE_EXECUTABLE_SUFFIX_C} -o ${PROJECT_NAME}.bin)
         add_custom_command(TARGET ${TARGET} POST_BUILD COMMAND ${CMAKE_FROMELF} --i32 ${TARGET}${CMAKE_EXECUTABLE_SUFFIX_C} -o ${PROJECT_NAME}.hex)
-        add_custom_command(TARGET ${TARGET} POST_BUILD COMMAND ${OBJDUMP} -d -S     ${PROJECT_NAME}${CMAKE_EXECUTABLE_SUFFIX_C} > ${PROJECT_NAME}.dmp)
-        add_custom_command(TARGET ${TARGET} POST_BUILD COMMAND ${SIZE}              ${PROJECT_NAME}${CMAKE_EXECUTABLE_SUFFIX_C})
+        add_custom_command(TARGET ${TARGET} POST_BUILD COMMAND ${OBJDUMP} -d -S       ${PROJECT_NAME}${CMAKE_EXECUTABLE_SUFFIX_C} > ${PROJECT_NAME}.dmp)
+        add_custom_command(TARGET ${TARGET} POST_BUILD COMMAND ${SIZE}                ${PROJECT_NAME}${CMAKE_EXECUTABLE_SUFFIX_C})
     endif()
 endfunction()

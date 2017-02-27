@@ -1,0 +1,16 @@
+
+#ifndef STARTUP_CONFIG_H__
+#define STARTUP_CONFIG_H__
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#cmakedefine STARTUP_CONFIG_STACK_SIZE      ${STARTUP_CONFIG_STACK_SIZE}
+#cmakedefine STARTUP_CONFIG_HEAP_SIZE       ${STARTUP_CONFIG_HEAP_SIZE}
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif // STARTUP_CONFIG_H__
