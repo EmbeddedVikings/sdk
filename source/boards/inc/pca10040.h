@@ -9,8 +9,8 @@
  * the file.
  *
  */
-#ifndef PCA10040_H
-#define PCA10040_H
+#ifndef PCA10040_H__
+#define PCA10040_H__
 
 #include "nrf.h"
 
@@ -34,4 +34,4 @@ extern "C" {
 }
 #endif
 
-#endif // PCA10040_H
+#endif // PCA10040_H__
