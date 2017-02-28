@@ -28,8 +28,8 @@
  *
  */
  
-#ifndef NRF5X_SYSTEM_H__
-#define NRF5X_SYSTEM_H__
+#ifndef NRF5X_SYSTEM_H
+#define NRF5X_SYSTEM_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -66,4 +66,4 @@ void SystemCoreClockUpdate (void);
 }
 #endif
 
-#endif // NRF5X_SYSTEM_H__
+#endif // NRF5X_SYSTEM_H

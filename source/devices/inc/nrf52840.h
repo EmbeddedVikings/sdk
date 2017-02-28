@@ -2412,6 +2412,4 @@ typedef struct {                                    /*!< CRYPTOCELL Structure   
 }
 #endif
 
-
-#endif  /* nrf52840_H */
-
+#endif // nrf52840_H

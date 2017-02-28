@@ -28,8 +28,8 @@
  *
  */
  
-#ifndef _NRF52832_PERIPHERALS_H
-#define _NRF52832_PERIPHERALS_H
+#ifndef NRF52832_PERIPHERALS_H
+#define NRF52832_PERIPHERALS_H
 
 
 /* Floating Point Unit */
@@ -215,4 +215,4 @@
 #define I2S_COUNT 1
 
 
-#endif      // _NRF52832_PERIPHERALS_H
+#endif // NRF52832_PERIPHERALS_H

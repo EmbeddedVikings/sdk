@@ -1,9 +1,9 @@
 
 /****************************************************************************************************//**
- * @file     nrf51.h
+ * @file     nrf51422.h
  *
  * @brief    CMSIS Cortex-M0 Peripheral Access Layer Header File for
- *           nrf51 from Nordic Semiconductor.
+ *           nrf51422 from Nordic Semiconductor.
  *
  * @version  V522
  * @date     18. November 2016
@@ -48,12 +48,12 @@
   * @{
   */
 
-/** @addtogroup nrf51
+/** @addtogroup nrf51422
   * @{
   */
 
-#ifndef NRF51_H
-#define NRF51_H
+#ifndef NRF51422_H
+#define NRF51422_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -1181,7 +1181,7 @@ typedef struct {                                    /*!< GPIO Structure         
 
 
 /** @} */ /* End of group Device_Peripheral_Registers */
-/** @} */ /* End of group nrf51 */
+/** @} */ /* End of group nrf51422 */
 /** @} */ /* End of group Nordic Semiconductor */
 
 #ifdef __cplusplus
@@ -1189,5 +1189,5 @@ typedef struct {                                    /*!< GPIO Structure         
 #endif
 
 
-#endif  /* nrf51_H */
+#endif // NRF51422_H
 

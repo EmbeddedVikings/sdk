@@ -1,6 +1,6 @@
 
 /****************************************************************************************************//**
- * @file     nrf52.h
+ * @file     nrf52832.h
  *
  * @brief    CMSIS Cortex-M4 Peripheral Access Layer Header File for
  *           nrf52 from Nordic Semiconductor.
@@ -48,12 +48,12 @@
   * @{
   */
 
-/** @addtogroup nrf52
+/** @addtogroup nrf52832
   * @{
   */
 
-#ifndef NRF52_H
-#define NRF52_H
+#ifndef NRF52832_H
+#define NRF52832_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -2087,5 +2087,5 @@ typedef struct {                                    /*!< GPIO Structure         
 #endif
 
 
-#endif  /* nrf52_H */
+#endif  // NRF52832_H
 

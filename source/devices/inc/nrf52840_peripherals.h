@@ -28,8 +28,8 @@
  *
  */
  
-#ifndef _NRF52840_PERIPHERALS_H
-#define _NRF52840_PERIPHERALS_H
+#ifndef NRF52840_PERIPHERALS_H
+#define NRF52840_PERIPHERALS_H
 
 
 /* Floating Point Unit */
@@ -237,4 +237,4 @@
 #define QSPI_PRESENT
 #define QSPI_COUNT 1
 
-#endif      // _NRF52840_PERIPHERALS_H
+#endif // NRF52840_PERIPHERALS_H

@@ -28,8 +28,8 @@
  *
  */
  
-#ifndef _NRF51422_PERIPHERALS_H
-#define _NRF51422_PERIPHERALS_H
+#ifndef NRF51422_PERIPHERALS_H
+#define NRF51422_PERIPHERALS_H
 
 
 /* Software Interrupts */
@@ -141,4 +141,4 @@
 #define LPCOMP_REFSEL_RESOLUTION 8
 
 
-#endif      // _NRF51422_PERIPHERALS_H
+#endif // NRF51422_PERIPHERALS_H

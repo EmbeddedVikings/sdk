@@ -28,8 +28,8 @@
  *
  */
  
-#ifndef __NRF52840_BITS_H
-#define __NRF52840_BITS_H
+#ifndef NRF52840_BITS_H
+#define NRF52840_BITS_H
 
 /*lint ++flb "Enter library region" */
 
@@ -14630,4 +14630,4 @@
 
 
 /*lint --flb "Leave library region" */
-#endif
+#endif // NRF52840_BITS_H
