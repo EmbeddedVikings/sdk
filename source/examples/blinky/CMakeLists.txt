@@ -1,9 +1,15 @@
 project(blinky C ASM)
 include(boards)
+include(common)
+include(drivers)
 
-set(SOURCES  "main.c")
+set(SOURCES     ${COMMON_SOURCES}
+                ${DRIVERS_SOURCES}
+                "main.c")
 
-include_directories(${PROJECT_DIR})
+include_directories(${PROJECT_DIR}
+                    ${DRIVERS_INCLUDES}
+                    ${COMMON_INCLUDES})
 
 nordic_add_executable(${PROJECT_NAME}  ${SOURCES})
 nordic_set_board_properties(${PROJECT_NAME})
