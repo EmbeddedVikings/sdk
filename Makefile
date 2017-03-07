@@ -60,5 +60,6 @@ help:
 	@echo "... clean"
 	@echo ""
 	@echo "To change build type:      BUILD_TYPE=[release|debug]"
-	@echo "To change board:           BOARD=[pca10028|pca10040|pca10056]"
+	@echo "To change default board:   BOARD=[pca10028|pca10040|pca10056]"
+	@echo "To change default device:  DEVICE=[nrf51422xxAA|nrf51422xxAB|nrf51422xxAC|nrf52832xxAA|nrf52832xxAB|nrf52840xxAA]"
 	@echo "To change cmake generator: GENERATOR=[\"MSYS Makefiles\"|\"Unix Makefiles\"]"
