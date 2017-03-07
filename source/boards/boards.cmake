@@ -19,7 +19,7 @@ endif()
 
 set(BOARD_INCLUDES "${CMAKE_CURRENT_LIST_DIR}/inc")
 
-include(device)
+include(devices)
 
 function(nordic_set_board_properties TARGET)
     target_compile_definitions(${TARGET} PRIVATE "-D${BOARD}")

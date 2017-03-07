@@ -3,12 +3,14 @@ RM := rm -rf
 
 BUILD_TYPE ?= debug
 BOARD      ?= pca10040
+DEVICE     ?= nrf52832xxAA
 GENERATOR  ?= $(if $(shell ninja --version 2> /dev/null),Ninja,$(if $(filter Windows%,$(OS)),MSYS Makefiles, Unix Makefiles))
 SOURCE      = "$(shell pwd)\source"
 
 COMMON_DEFINITIONS =                     \
 	-DCMAKE_BUILD_TYPE=$(BUILD_TYPE)     \
 	-DCMAKE_BOARD=$(BOARD)               \
+	-DCMAKE_DEVICE=$(DEVICE)             \
 
 armgcc:
 	$(RM) "build/armgcc" && $(MK) "build/armgcc"

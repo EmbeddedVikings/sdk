@@ -1,5 +1,6 @@
 if(NOT DEFINED ${PROJECT_NAME}_DEVICE)
     set(${PROJECT_NAME}_DEVICE ${CMAKE_DEVICE} CACHE STRING "Device [nrf51422xxAA|nrf51422xxAB|nrf51422xxAC|nrf52832xxAA|nrf52832xxAB|nrf52840xxAA]")
+    set_property(CACHE ${PROJECT_NAME}_DEVICE PROPERTY STRINGS nrf51422xxAA nrf51422xxAB nrf51422xxAC nrf52832xxAA nrf52832xxAB nrf52840xxAA)
 endif()
 
 
@@ -82,6 +83,12 @@ function(nordic_add_linker TARGET)
     set(SYSTEM_CONFIG_TRACE_ENABLED         ${${PROJECT_NAME}_SYSTEM_CONFIG_TRACE_ENABLED})
 
     configure_file(${TEMPLATE_SYSTEM_CONFIG} ${CMAKE_CURRENT_BINARY_DIR}/config/system_config.h)
+endfunction()
+
+
+function(nordic_add_library TARGET)
+    add_library(${TARGET} ${ARGN})
+    nordic_set_device_properties(${TARGET})
 endfunction()
 
 

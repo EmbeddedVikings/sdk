@@ -55,6 +55,7 @@ uint32_t n_gpio_port_read(n_gpio_port_t * p_port)
     return p_port->IN;
 }
 
+#ifdef GPIO_DETECTMODE_DETECTMODE_LDETECT
 void n_gpio_pin_latch_enable(n_gpio_port_t * p_port,
                              uint32_t        pin)
 {
@@ -94,3 +95,4 @@ void n_gpio_pin_latch_clear(n_gpio_port_t * p_port,
 
     p_port->LATCH = (1 << pin);
 }
+#endif // GPIO_DETECTMODE_DETECTMODE_LDETECT

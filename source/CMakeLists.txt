@@ -9,3 +9,4 @@ list(APPEND CMAKE_MODULE_PATH
 
 project(nordic_sdk)
 add_subdirectory(examples)
+add_subdirectory(drivers)
