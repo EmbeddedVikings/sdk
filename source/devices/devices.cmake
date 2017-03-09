@@ -42,7 +42,19 @@ function(nordic_set_device_properties TARGET)
 endfunction()
 
 
-function(nordic_add_linker TARGET)
+function(nordic_add_library TARGET)
+    add_library(${TARGET} ${ARGN})
+    nordic_set_device_properties(${TARGET})
+endfunction()
+
+
+function(nordic_add_executable TARGET)
+    add_executable(${TARGET} ${ARGN})
+    nordic_set_device_properties(${TARGET})
+    nordic_memory_settings()
+    nordic_startup_settings()
+    nordic_system_settings()
+
     if(DEFINED ${PROJECT_NAME}_DEVICE_LINKER_SCRIPT)
         set(LINKER_SCRIPT ${${PROJECT_NAME}_DEVICE_LINKER_SCRIPT})
 
@@ -73,28 +85,14 @@ function(nordic_add_linker TARGET)
 
     set(STARTUP_CONFIG_STACK_SIZE  ${${PROJECT_NAME}_STARTUP_CONFIG_STACK_SIZE})
     set(STARTUP_CONFIG_HEAP_SIZE   ${${PROJECT_NAME}_STARTUP_CONFIG_HEAP_SIZE})
-
     configure_file(${TEMPLATE_STARTUP_CONFIG} ${CMAKE_CURRENT_BINARY_DIR}/config/startup_config.h)
 
     set(SYSTEM_CONFIG_NFCT_PINS_AS_GPIOS    ${${PROJECT_NAME}_SYSTEM_CONFIG_NFCT_PINS_AS_GPIOS})
     set(SYSTEM_CONFIG_PINRESET_AS_GPIO      ${${PROJECT_NAME}_SYSTEM_CONFIG_PINRESET_AS_GPIO})
     set(SYSTEM_CONFIG_SWO_ENABLED           ${${PROJECT_NAME}_SYSTEM_CONFIG_SWO_ENABLED})
     set(SYSTEM_CONFIG_TRACE_ENABLED         ${${PROJECT_NAME}_SYSTEM_CONFIG_TRACE_ENABLED})
-
     configure_file(${TEMPLATE_SYSTEM_CONFIG} ${CMAKE_CURRENT_BINARY_DIR}/config/system_config.h)
-endfunction()
 
-
-function(nordic_add_library TARGET)
-    add_library(${TARGET} ${ARGN})
-    nordic_set_device_properties(${TARGET})
-endfunction()
-
-
-function(nordic_add_executable TARGET)
-    add_executable(${TARGET} ${ARGN})
-    nordic_set_device_properties(${TARGET})
-    nordic_add_linker(${TARGET})
     set_property(TARGET ${TARGET} APPEND PROPERTY SOURCES ${DEVICE_STARTUP_FILE} ${DEVICE_SYSTEM_FILE})
 endfunction()
 
